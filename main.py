@@ -129,24 +129,28 @@ def query(sign, uuid_token, domain):
         "Accept-Language": "zh-CN,zh;q=0.9",
         "Origin": "https://beian.miit.gov.cn",
         "Content-Type": "application/json",
-        "Cookie": "__jsluid_s="+str(uuid.uuid4().hex[:32])
+        "Cookie": "__jsluid_s=" + str(uuid.uuid4().hex[:32])
     }
     data = {"pageNum": "", "pageSize": "", "unitName": domain, "serviceType": 1}
     resp = requests.post("https://hlwicpfwc.miit.gov.cn/icpproject_query/api/icpAbbreviateInfo/queryByCondition",
-                         headers=headers, data=json.dumps(data).replace(" ","")).text
+                         headers=headers, data=json.dumps(data).replace(" ", "")).text
     return resp
 
 
-crack = Crack()
-token = auth()
-time.sleep(0.1)
-print("正在获取验证码")
-params, clientUid = getImage()
-pointjson = generate_pointjson(params["bigImage"], params["smallImage"], params["secretKey"])
-time.sleep(0.5)
-sign = checkImage(params["uuid"], params["secretKey"], clientUid, pointjson)
-time.sleep(0.5)
-if sign:
-    print(query(sign, params["uuid"],"baidu.com"))
-else:
-    print("failed")
+if __name__ == '__main__':
+    crack = Crack()
+    token = auth()
+    time.sleep(0.1)
+    print("正在获取验证码")
+    params, clientUid = getImage()
+    pointjson = generate_pointjson(params["bigImage"], params["smallImage"], params["secretKey"])
+    time.sleep(0.5)
+    sign = checkImage(params["uuid"], params["secretKey"], clientUid, pointjson)
+    time.sleep(0.5)
+    if sign:
+        json_str = query(sign, params["uuid"], "baidu.com")
+        jsonArr = json.loads(json_str)
+        res = json.dumps(jsonArr["params"]["list"], indent=4, ensure_ascii=False)
+        print(res)
+    else:
+        print("failed")
